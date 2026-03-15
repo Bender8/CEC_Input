@@ -18,3 +18,4 @@ KEY_MAP = {
 SEQUENCE_START = 116
 CODE_SEQUENCE = [1, 2, 3, 4]
 CODE = [uinput.KEY_1, uinput.KEY_2, uinput.KEY_3, uinput.KEY_4, uinput.KEY_ENTER]
+KEY_DURATION = 0.02

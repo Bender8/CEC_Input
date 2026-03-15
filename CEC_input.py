@@ -6,7 +6,13 @@ import uinput
 
 # --- CONFIGURATION LOADING ---
 try:
-    from local_settings import CODE, CODE_SEQUENCE, KEY_MAP, SEQUENCE_START
+    from local_settings import (
+        CODE,
+        CODE_SEQUENCE,
+        KEY_DURATION,
+        KEY_MAP,
+        SEQUENCE_START,
+    )
 except ImportError:
     print("local_settings.py not found!")
     sys.exit(1)
@@ -60,6 +66,7 @@ def on_keypress(event, key, duration):
     if len(action) > 1:
         for k in action:
             device.emit(k, 1)
+        time.sleep(KEY_DURATION)
         for k in reversed(action):
             device.emit(k, 0)
     else:
