@@ -13,10 +13,10 @@ except ImportError:
 
 
 # Create the virtual keyboard
-def uinput_setup(key_map):
+def uinput_setup(key_map, code_buttons):
     unique_keys = {k for key_list in key_map.values() for k in key_list}
     # Add the code keys to the set
-    unique_keys.update(CODE)
+    unique_keys.update(code_buttons)
     # Convert the set to a list and initialize the device
     return uinput.Device(list(unique_keys))
 
@@ -68,7 +68,7 @@ def on_keypress(event, key, duration):
 
 def main():
     global device
-    device = uinput_setup(KEY_MAP)
+    device = uinput_setup(KEY_MAP, CODE)
     global entered_sequence
     entered_sequence = list(range(len(CODE_SEQUENCE) + 1))
 
