@@ -4,9 +4,7 @@ import cec
 
 
 def on_keypress(event, key, duration):
-    # ignore key release events
-    if duration == 0:
-        print(f"CEC button: {key}")
+    print(f"CEC button: {key} Duration: {duration}")
 
 
 def main():
