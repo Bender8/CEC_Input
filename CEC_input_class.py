@@ -3,7 +3,8 @@ import sys
 import time
 
 import cec
-import uinput
+from evdev import UInput
+from evdev import ecodes as e
 
 try:
     from local_settings import (
@@ -29,10 +30,13 @@ class CECInputBridge:
         self._cec_setup()
 
     def _uinput_setup(self):
-        """Initializes the virtual keyboard with all required keys."""
+        """Initializes the virtual keyboard using evdev."""
         unique_keys = {k for val in KEY_MAP.values() for k in val["keys"]}
         unique_keys.update(CODE["keys"])
-        return uinput.Device(list(unique_keys))
+        # Filter for integers to prevent Python 3.13 TypeErrors
+        clean_keys = [k for k in unique_keys if isinstance(k, int)]
+        capabilities = {e.EV_KEY: clean_keys}
+        return UInput(capabilities, name="CEC-Input-Bridge")
 
     def _cec_setup(self):
         """Registers the class method as the CEC callback."""
@@ -57,24 +61,28 @@ class CECInputBridge:
             self._process_action(CODE)
         else:
             print("Code Incorrect.")
-        # Always return to normal mode after a full attempt
+
         self.is_intercepting = False
-        return
 
     def _emit_combo(self, keys):
-        """Processes combo keys or single keys."""
-        # Press all keys in the list (e.g., ALT then F4)
+        """Processes combo keys or single keys with duration control."""
+        # Press all keys
         for k in keys:
-            self.device.emit(k, 1)
+            self.device.write(e.EV_KEY, k, 1)
+        self.device.syn()
+
         time.sleep(KEY_DURATION)
-        # Release all keys in reverse order (e.g., F4 then ALT)
+
+        # Release all keys
         for k in reversed(keys):
-            self.device.emit(k, 0)
+            self.device.write(e.EV_KEY, k, 0)
+        self.device.syn()
 
     def _emit_sequence(self, keys):
-        """Processes sequence keys or single keys."""
+        """Processes sequence keys by reusing combo logic for each key."""
         for k in keys:
-            self.device.emit_click(k)
+            self._emit_combo([k])
+            time.sleep(KEY_DURATION)
 
     def _process_action(self, action):
         """The Router: Decides whether to 'Combo' or 'Sequence' the keys."""
@@ -93,11 +101,11 @@ class CECInputBridge:
         """The main entry point for every CEC event."""
         if duration != 0:
             return
-        # Toggle Secret Mode
+
         if key == SEQUENCE_START:
             self._start_interception()
             return
-        # Route keys based on current state
+
         if self.is_intercepting:
             self._process_secret_sequence(key)
         else:
@@ -105,7 +113,6 @@ class CECInputBridge:
 
 
 def main():
-    # Wait for hardware before starting the class
     while not cec.list_adapters():
         print("Waiting for CEC adapter...")
         time.sleep(5)
