@@ -62,20 +62,22 @@ class CECInputBridge:
         self.is_intercepting = False
         return
 
-    def _emit_combo(self, keys):
+    def _emit_combo(self, keys, duration):
         """Processes combo keys or single keys."""
         # Press all keys in the list (e.g., ALT then F4)
         for k in keys:
             self.device.emit(k, 1)
-        time.sleep(KEY_DURATION)
+        time.sleep(duration)
         # Release all keys in reverse order (e.g., F4 then ALT)
         for k in reversed(keys):
             self.device.emit(k, 0)
 
-    def _emit_sequence(self, keys):
+    def _emit_sequence(self, keys, duration):
         """Processes sequence keys or single keys."""
         for k in keys:
-            self.device.emit_click(k)
+            self.device.emit(k, 1)
+            time.sleep(duration)
+            self.device.emit(k, 0)
 
     def _process_action(self, action):
         """The Router: Decides whether to 'Combo' or 'Sequence' the keys."""
@@ -84,11 +86,12 @@ class CECInputBridge:
 
         action_type = action.get("type")
         keys = action.get("keys")
+        duration = action.get("duration", KEY_DURATION)
 
         if action_type == "combo":
-            self._emit_combo(keys)
+            self._emit_combo(keys, duration)
         elif action_type == "sequence":
-            self._emit_sequence(keys)
+            self._emit_sequence(keys, duration)
 
     def handle_keypress(self, event, key, duration):
         """The main entry point for every CEC event."""

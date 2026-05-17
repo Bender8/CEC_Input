@@ -4,7 +4,7 @@ import uinput
 # Ok = 0 Back = 13
 # up = 1 down = 2 left = 3 right = 4
 
-KEY_DURATION = 0.02
+KEY_DURATION = 0.05
 KEY_MAP = {
     0: {"type": "combo", "keys": [uinput.KEY_ENTER]},
     1: {"type": "combo", "keys": [uinput.KEY_UP]},
@@ -14,7 +14,7 @@ KEY_MAP = {
     13: {"type": "combo", "keys": [uinput.KEY_ESC]},
     113: {"type": "combo", "keys": [uinput.KEY_LEFTMETA]},
     114: {"type": "combo", "keys": [uinput.KEY_LEFTALT, uinput.KEY_F4]},
-    115: {"type": "combo", "keys": [uinput.KEY_LEFTSHIFT, uinput.KEY_ENTER]},
+    115: {"type": "sequence", "duration": 0.75, "keys": [uinput.KEY_ENTER]},
 }
 
 SEQUENCE_START = 116
