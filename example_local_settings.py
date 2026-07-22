@@ -23,3 +23,4 @@ CODE = {
     "type": "sequence",
     "keys": [uinput.KEY_1, uinput.KEY_2, uinput.KEY_3, uinput.KEY_4],
 }
+HDMI_PORT = 1
